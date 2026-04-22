@@ -65,6 +65,10 @@ export interface AdminConfig {
     OIDCClientSecret?: string; // OIDC Client Secret
     OIDCButtonText?: string; // OIDC登录按钮文字
     OIDCMinTrustLevel?: number; // 最低信任等级（仅LinuxDo网站有效，为0时不判断）
+    // 广告解锁配置
+    EnableAdUnlock?: boolean; // 开启广告解锁功能
+    AdUnlockAdUrl?: string; // 广告URL（iframe嵌入，留空显示模拟广告）
+    AdUnlockCountdownSeconds?: number; // 倒计时秒数（默认5秒）
   };
   UserConfig: {
     Users: {
