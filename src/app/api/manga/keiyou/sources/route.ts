@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { keiyouMangaClient } from '@/lib/keiyou-manga.client';
+import { keiyouMangaClient, KeiyouMangaClient } from '@/lib/keiyou-manga.client';
 
 import { getAuthorizedUsername } from '../../_utils';
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const repoUrl = new URL(request.url).searchParams.get('repo') ||
       'https://gh-proxy.com/https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json';
 
-    const client = new keiyouMangaClient(repoUrl);
+    const client = new KeiyouMangaClient(repoUrl);
     const sources = await client.getSources();
     return NextResponse.json({ sources });
   } catch (error) {
