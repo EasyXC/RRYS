@@ -255,7 +255,7 @@ export default async function RootLayout({
   return (
     <html lang='zh-CN' suppressHydrationWarning>
       <head>
-        <meta name='baidu_union_verify' content='108aa91733af82a8a5333d5d4262addd' />
+        <meta name="baidu_union_verify" content="5ea07a9536a44f0452c2129901005e5c">
         <meta
           name='viewport'
           content='width=device-width, initial-scale=1.0, viewport-fit=cover'
