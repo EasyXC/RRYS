@@ -2,8 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getAuthorizedUsername } from '../_utils';
 import { getSuwayomiConfig, loginWithSimpleAuth } from '@/lib/suwayomi.client';
+import { getConfig } from '@/lib/config';
 
 export const runtime = 'nodejs';
+
+// 国内镜像代理（仅代理 raw.githubusercontent.com 等国外域名）
+const DEFAULT_GITHUB_PROXY = 'https://gh-proxy.com/';
+
+function buildGhProxyUrl(upstreamUrl: string, proxyBase: string): string {
+  return proxyBase.replace(/\/$/, '') + '/' + upstreamUrl;
+}
+
+/**
+ * 判断一个 URL 的 host 是否需要走 GitHub 镜像代理
+ * 仅对 raw.githubusercontent.com 等国外域名生效
+ */
+function needsGhProxy(url: string): boolean {
+  try {
+    const host = new URL(url).hostname;
+    return host === 'raw.githubusercontent.com' || host.endsWith('.github.io');
+  } catch {
+    return false;
+  }
+}
 
 function resolveUpstreamUrl(serverBaseUrl: string, pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) {
@@ -34,6 +55,20 @@ export async function GET(request: NextRequest) {
 
     const config = await getSuwayomiConfig();
     const upstreamUrl = resolveUpstreamUrl(config.serverBaseUrl, pathOrUrl);
+
+    // GitHub 镜像代理：漫画源图片多托管在 GitHub（如 Cover、Chapter Pages）
+    let fetchUrl = upstreamUrl;
+    let ghProxyBase = DEFAULT_GITHUB_PROXY;
+    try {
+      const adminConfig = await getConfig();
+      ghProxyBase = adminConfig.SuwayomiConfig?.GhProxyUrl || DEFAULT_GITHUB_PROXY;
+    } catch {
+      // 配置读取失败时使用默认值
+    }
+    if (needsGhProxy(upstreamUrl)) {
+      fetchUrl = buildGhProxyUrl(upstreamUrl, ghProxyBase);
+    }
+
     const buildHeaders = async (
       forceRelogin: boolean
     ): Promise<HeadersInit | undefined> => {
@@ -56,13 +91,13 @@ export async function GET(request: NextRequest) {
       return undefined;
     };
 
-    let response = await fetch(upstreamUrl, {
+    let response = await fetch(fetchUrl, {
       headers: await buildHeaders(false),
       cache: 'no-store',
     });
 
     if (response.status === 401 && config.authMode === 'simple_login') {
-      response = await fetch(upstreamUrl, {
+      response = await fetch(fetchUrl, {
         headers: await buildHeaders(true),
         cache: 'no-store',
       });

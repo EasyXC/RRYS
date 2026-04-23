@@ -10220,6 +10220,7 @@ const SuwayomiConfigComponent = ({
   const [defaultLang, setDefaultLang] = useState('zh');
   const [sourceIds, setSourceIds] = useState('');
   const [maxSources, setMaxSources] = useState(10);
+  const [ghProxyUrl, setGhProxyUrl] = useState('');
 
   useEffect(() => {
     if (config?.SuwayomiConfig) {
@@ -10231,6 +10232,7 @@ const SuwayomiConfigComponent = ({
       setDefaultLang(config.SuwayomiConfig.DefaultLang || 'zh');
       setSourceIds((config.SuwayomiConfig.SourceIds || []).join(','));
       setMaxSources(config.SuwayomiConfig.MaxSources || 10);
+      setGhProxyUrl(config.SuwayomiConfig.GhProxyUrl || '');
     }
   }, [config]);
 
@@ -10243,6 +10245,7 @@ const SuwayomiConfigComponent = ({
     DefaultLang: defaultLang || 'zh',
     SourceIds: sourceIds.split(',').map((item) => item.trim()).filter(Boolean),
     MaxSources: Math.max(1, maxSources || 10),
+    GhProxyUrl: ghProxyUrl.trim(),
   });
 
   const handleSave = async () => {
@@ -10427,6 +10430,20 @@ const SuwayomiConfigComponent = ({
             placeholder='留空表示使用默认语言下全部源；填写时用英文逗号分隔 sourceId'
             className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
           />
+        </div>
+
+        <div>
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>GitHub 镜像代理</label>
+          <input
+            type='text'
+            value={ghProxyUrl}
+            onChange={(e) => setGhProxyUrl(e.target.value)}
+            placeholder='https://gh-proxy.com/（留空使用默认）'
+            className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+          />
+          <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
+            漫画章节图片若托管在 raw.githubusercontent.com 等国外域名，系统会自动通过此代理加速访问。留空则使用默认的 gh-proxy.com。
+          </p>
         </div>
 
         <div className='flex gap-3'>

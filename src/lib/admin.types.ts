@@ -256,6 +256,7 @@ export interface AdminConfig {
     DefaultLang?: string; // 默认语言，如 zh
     SourceIds?: string[]; // 限制可用源
     MaxSources?: number; // 搜索时最多查询多少个源
+    GhProxyUrl?: string; // GitHub 镜像代理 URL（如 https://gh-proxy.com/），用于加速加载国外漫画源的图片
   };
   EmailConfig?: {
     enabled: boolean; // 是否启用邮件通知
