@@ -196,11 +196,11 @@ export default function MangaReadPage() {
 
   useEffect(() => {
     if (!chapterId) return;
-    fetch(`/api/manga/pages?chapterId=${encodeURIComponent(chapterId)}`)
+    fetch(`/api/manga/pages?chapterId=${encodeURIComponent(chapterId)}&sourceId=${encodeURIComponent(sourceId)}`)
       .then((res) => res.json())
       .then((data) => setPages(data.pages || []))
       .catch(() => setPages([]));
-  }, [chapterId]);
+  }, [chapterId, sourceId]);
 
   useEffect(() => {
     if (!mangaId || !sourceId) return;

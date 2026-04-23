@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { keiyouMangaClient, KeiyouMangaClient } from '@/lib/keiyou-manga.client';
-import { suwayomiClient } from '@/lib/suwayomi.client';
+import { KeiyouMangaClient } from '@/lib/keiyou-manga.client';
 
-import { getAuthorizedUsername } from '../_utils';
+import { getAuthorizedUsername } from '../../_utils';
 
 export const runtime = 'nodejs';
 
@@ -15,20 +14,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const chapterId = searchParams.get('chapterId')?.trim();
     const sourceId = searchParams.get('sourceId')?.trim();
-    const repoUrl = searchParams.get('repo') || undefined;
+    const repoUrl = searchParams.get('repo') ||
+      'https://gh-proxy.com/https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json';
 
     if (!chapterId || !sourceId) {
       return NextResponse.json({ error: '缺少 chapterId 或 sourceId' }, { status: 400 });
     }
 
-    // 自动路由：keiyou: 前缀走内置源，否则走 Suwayomi
-    if (sourceId.startsWith('keiyou:')) {
-      const client = repoUrl ? new KeiyouMangaClient(repoUrl) : keiyouMangaClient;
-      const pages = await client.getChapterPages(chapterId, sourceId);
-      return NextResponse.json({ pages });
-    }
-
-    const pages = await suwayomiClient.getChapterPages(chapterId);
+    const client = new KeiyouMangaClient(repoUrl);
+    const pages = await client.getChapterPages(chapterId, sourceId);
     return NextResponse.json({ pages });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });

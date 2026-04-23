@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { keiyouMangaClient, KeiyouMangaClient } from '@/lib/keiyou-manga.client';
-import { suwayomiClient } from '@/lib/suwayomi.client';
 
-import { getAuthorizedUsername } from '../_utils';
+import { getAuthorizedUsername } from '../../_utils';
 
 export const runtime = 'nodejs';
 
@@ -15,20 +14,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q')?.trim();
     const sourceId = searchParams.get('sourceId')?.trim() || undefined;
-    const repoUrl = searchParams.get('repo') || undefined;
+    const repoUrl = searchParams.get('repo') ||
+      'https://gh-proxy.com/https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json';
 
     if (!q) {
       return NextResponse.json({ results: [] });
     }
 
-    // 自动路由：keiyou: 前缀走内置源，否则走 Suwayomi
-    if (sourceId?.startsWith('keiyou:') || !sourceId) {
-      const client = repoUrl ? new KeiyouMangaClient(repoUrl) : keiyouMangaClient;
-      const results = await client.searchManga(q, sourceId);
-      return NextResponse.json({ results });
-    }
-
-    const results = await suwayomiClient.searchManga(q, sourceId, 1);
+    const client = new KeiyouMangaClient(repoUrl);
+    const results = await client.searchManga(q, sourceId);
     return NextResponse.json({ results });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });

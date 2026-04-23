@@ -95,7 +95,7 @@ export default function MangaDetailPage() {
       status: searchParams.get('status') || '',
     });
 
-    fetch(`/api/manga/detail?${params.toString()}`)
+    fetch(`/api/manga/detail?mangaId=${encodeURIComponent(mangaId)}&sourceId=${encodeURIComponent(sourceId)}`)
       .then((res) => res.json())
       .then(setDetail)
       .catch(() => undefined);
